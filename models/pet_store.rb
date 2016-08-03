@@ -44,7 +44,7 @@ class PetStore
     sql = "INSERT INTO pet_stores (name, address, stock_type) VALUES ('#{@name}', '#{@address}', '#{@stock_type}') RETURNING *;"
     @id = SqlRunner.run(sql).first['id']
     @@stores ||= []
-    @@stores << self
+    @@stores << self.clone
     return @id
   end
 
