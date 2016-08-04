@@ -61,22 +61,28 @@ class Pet
   end
 
   def delete
-    sql = "DELETE FROM pets WHERE id = #{@id};"
-    SqlRunner.run(sql)
-    @@pets ||= []
-    # self may not be on the @@pets list but a pet with the same id should be
-    i = @@pets.find_index { | pet | pet.id == @id }
-    @@pets.delete_at(i) if i
+    if @id
+      sql = "DELETE FROM pets WHERE id = #{@id};"
+      SqlRunner.run(sql)
+      @@pets ||= []
+      # self may not be on the @@pets list but a pet with the same id should be
+      i = @@pets.find_index { | pet | pet.id == @id }
+      @@pets.delete_at(i) if i
+      @id = nil
+    end
     return @id
   end
 
   def update
-    sql = "UPDATE pets SET (name, type, store_id) = ('#{@name}', '#{@type}', #{@store_id}) WHERE id = #{@id} RETURNING *;"
-    id = SqlRunner.run(sql).first['id']
-    @@pets ||= []
-    i = @@pets.find_index { | pet | pet.id == @id }
-    @@pets[i] = self.clone if i
-    return id
+    if @id
+      sql = "UPDATE pets SET (name, type, store_id) = ('#{@name}', '#{@type}', #{@store_id}) WHERE id = #{@id} RETURNING *;"
+      id = SqlRunner.run(sql).first['id']
+      @@pets ||= []
+      i = @@pets.find_index { | pet | pet.id == @id }
+      @@pets[i] = self.clone if i && @pets[1] != self
+      return id
+    end
+    return nil
   end
 
   def my_store
